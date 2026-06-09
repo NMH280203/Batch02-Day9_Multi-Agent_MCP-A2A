@@ -172,11 +172,34 @@ def check_compliance_requirements(industry: str, company_size: str) -> str:
     )
 
 
-TOOLS = [search_legal_database, calculate_penalty, check_compliance_requirements]
+@tool
+def search_case_law(keywords: str) -> str:
+    """Tìm kiếm án lệ theo từ khóa.
+
+    Args:
+        keywords: Từ khóa tìm kiếm
+    """
+    cases = {
+        "breach": "Hadley v. Baxendale (1854) - Consequential damages",
+        "negligence": "Donoghue v. Stevenson (1932) - Duty of care",
+        "contract": "Carlill v. Carbolic Smoke Ball Co (1893) - Unilateral contract",
+    }
+    for key, case in cases.items():
+        if key in keywords.lower():
+            return case
+    return "Không tìm thấy án lệ phù hợp"
+
+
+TOOLS = [
+    search_legal_database,
+    calculate_penalty,
+    check_compliance_requirements,
+    search_case_law,
+]
 
 QUESTION = (
-    "A tech startup with $5M revenue was caught sharing user data without consent "
-    "and failed to pay taxes on overseas revenue. What are all the legal consequences?"
+    "What are the legal consequences and relevant case law for breach of contract "
+    "when a supplier fails to deliver goods on time?"
 )
 
 SYSTEM_PROMPT = (
@@ -205,6 +228,8 @@ async def main():
     print("-" * 70)
 
     llm = get_llm()
+    # Bài tập 3.2: debug reasoning via astream (verbose=True không còn hỗ trợ
+    # trong create_react_agent; stream_mode hiển thị từng bước Think/Act/Observe)
     graph = create_react_agent(model=llm, tools=TOOLS, prompt=SYSTEM_PROMPT)
 
     inputs = {"messages": [{"role": "user", "content": QUESTION}]}

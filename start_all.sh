@@ -4,27 +4,35 @@ set -e
 # Start all Legal Multi-Agent System services
 # Registry must be first, then leaf agents, then orchestrators
 
+PYTHON_BIN="$(pwd)/.venv/bin/python"
+
+if [ ! -x "$PYTHON_BIN" ]; then
+  echo "Project virtualenv not found at .venv/bin/python"
+  echo "Run: \"$HOME/.local/bin/uv\" sync"
+  exit 1
+fi
+
 echo "Starting Registry service on port 10000..."
-python -m registry &
+"$PYTHON_BIN" -mregistry &
 REGISTRY_PID=$!
 sleep 2
 
 echo "Starting Tax Agent on port 10102..."
-python -m tax_agent &
+"$PYTHON_BIN" -mtax_agent &
 TAX_PID=$!
 
 echo "Starting Compliance Agent on port 10103..."
-python -m compliance_agent &
+"$PYTHON_BIN" -mcompliance_agent &
 COMPLIANCE_PID=$!
 sleep 3
 
 echo "Starting Law Agent on port 10101..."
-python -m law_agent &
+"$PYTHON_BIN" -mlaw_agent &
 LAW_PID=$!
 sleep 3
 
 echo "Starting Customer Agent on port 10100..."
-python -m customer_agent &
+"$PYTHON_BIN" -mcustomer_agent &
 CUSTOMER_PID=$!
 
 echo ""
@@ -36,7 +44,7 @@ echo "  Tax Agent:        http://localhost:10102"
 echo "  Compliance Agent: http://localhost:10103"
 echo ""
 echo "Run test_client.py to send a query:"
-echo "  python test_client.py"
+echo "  \"$HOME/.local/bin/uv\" run python test_client.py"
 echo ""
 echo "Press Ctrl+C to stop all services."
 
